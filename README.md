@@ -1,4 +1,4 @@
-# Laravel 12 + Docker Development Environment
+# Laravel 12 & React + Docker Development Environment
 
 A modern Laravel application with Docker containerization, featuring Laravel 12, PHP 8.4, Node.js 24, React, Tailwind CSS v4, and Vite for a cutting-edge development experience.
 
