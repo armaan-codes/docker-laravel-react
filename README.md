@@ -1,11 +1,11 @@
 # Laravel 12 + Docker Development Environment
 
-A modern Laravel application with Docker containerization, featuring Laravel 12, PHP 8.4, Node.js 24, Tailwind CSS v4, and Vite for a cutting-edge development experience.
+A modern Laravel application with Docker containerization, featuring Laravel 12, PHP 8.4, Node.js 24, React, Tailwind CSS v4, and Vite for a cutting-edge development experience.
 
 ## 🚀 Tech Stack
 
 - **Backend**: Laravel 12 (PHP 8.4)
-- **Frontend**: Tailwind CSS v4 + Vite 6
+- **Frontend**: React 19 + Tailwind CSS v4 + Vite 6
 - **Database**: MySQL 8.0
 - **Cache/Sessions**: Redis
 - **Containerization**: Docker + Docker Compose
@@ -43,18 +43,20 @@ chmod +x docker.sh
 
 This command will automatically:
 - ✅ Create `.env` file from `.env.example`
-- ✅ Install npm dependencies
-- ✅ Build frontend assets (Vite + Tailwind CSS)
-- ✅ Build and start Docker containers
+- ✅ Build and start Docker containers (with automated Laravel setup)
 - ✅ Generate Laravel application key
+- ✅ Install Composer dependencies
 - ✅ Run database migrations
 - ✅ Seed the database
+
+> **Note**: The Laravel container includes an automated setup process that runs when the container starts. This includes installing dependencies, generating keys, and running migrations automatically.
 
 ### 2. Access Your Application
 - **Main Application**: http://localhost:8000
 - **Database Admin (phpMyAdmin)**: http://localhost:8080
 - **MySQL**: localhost:3306
 - **Redis**: localhost:6379
+- **Vite Dev Server**: http://localhost:5173 (for frontend development)
 
 ## 🐳 Docker Management
 
@@ -89,12 +91,10 @@ The project includes a convenient management script (`docker.sh`) with the follo
 ./docker.sh composer install
 ./docker.sh composer require package-name
 
-# Build frontend assets locally
-./docker.sh build
-
-# Run npm commands (if Node.js is available in container)
+# Run npm commands through Docker
 ./docker.sh npm install
 ./docker.sh npm run dev
+./docker.sh npm run build
 ```
 
 ### Cleanup Commands
@@ -109,18 +109,25 @@ The project includes a convenient management script (`docker.sh`) with the follo
 ## 🛠️ Development Workflow
 
 ### Frontend Development
-The project uses Vite for fast development and Tailwind CSS v4 for styling:
+The project uses React 19, Vite for fast development, and Tailwind CSS v4 for styling:
 
 ```bash
-# Install dependencies
+# Install dependencies (run outside container)
 npm install
 
-# Development mode (with hot reloading)
+# Development mode (with hot reloading) - run outside container
 npm run dev
 
-# Production build
+# Production build - run outside container  
 npm run build
+
+# Or run frontend commands through Docker
+./docker.sh npm install
+./docker.sh npm run dev
+./docker.sh npm run build
 ```
+
+**Note**: For the best development experience with hot reloading, run `npm run dev` outside the container. The Vite dev server will be available at http://localhost:5173.
 
 ### Backend Development
 Laravel commands can be run through Docker:
@@ -140,7 +147,7 @@ Laravel commands can be run through Docker:
 ```
 
 ### Docker Services
-- **laravel**: Main application container (PHP 8.4 + Nginx)
+- **laravel**: Main application container (PHP 8.4-FPM + Nginx + Node.js 24)
 - **mysql**: MySQL 8.0 database
 - **redis**: Redis for caching and sessions
 - **phpmyadmin**: Database management interface
@@ -151,8 +158,11 @@ Laravel commands can be run through Docker:
 
 **1. "Vite manifest not found" error:**
 ```bash
-# Build assets first
-./docker.sh build
+# Build assets first (outside container for better performance)
+npm run build
+
+# Or build through Docker
+./docker.sh npm run build
 ```
 
 **2. Database connection issues:**
@@ -169,7 +179,7 @@ sudo chown -R $USER:$USER .
 ```
 
 **4. Port conflicts:**
-- Change ports in `docker-compose.yml` if 8000, 3306, or 6379 are in use
+- Change ports in `docker-compose.yml` if 8000, 3306, 6379, 8080, or 5173 are in use
 
 **5. Docker build fails:**
 ```bash
@@ -193,15 +203,26 @@ docker compose exec laravel bash
 
 ## 🔄 Development Tips
 
-1. **Hot Reloading**: Use `npm run dev` for frontend development with hot reloading
+1. **Hot Reloading**: Use `npm run dev` (outside container) for frontend development with hot reloading
 2. **Database**: Use phpMyAdmin at http://localhost:8080 for easy database management
 3. **Caching**: Clear Laravel caches with `./docker.sh artisan optimize:clear`
 4. **Queue Workers**: Background jobs are automatically processed via Supervisor
 5. **Testing**: Run tests with `./docker.sh artisan test`
+6. **React Development**: React components are in `resources/js/components/`
+7. **Container Access**: Use `docker compose exec laravel bash` to access the container shell
+
+## 🔧 Environment Configuration
+
+The application uses the following default database credentials (configurable in `.env`):
+- **Database**: laravel
+- **Username**: lucifer  
+- **Password**: secret
+- **Host**: mysql (internal container networking)
 
 ## 📚 Additional Resources
 
 - [Laravel Documentation](https://laravel.com/docs)
+- [React Documentation](https://react.dev/)
 - [Tailwind CSS v4 Documentation](https://tailwindcss.com/docs)
 - [Vite Documentation](https://vitejs.dev/guide/)
 - [Docker Documentation](https://docs.docker.com/)
